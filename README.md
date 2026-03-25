@@ -254,7 +254,7 @@ shopify webhook trigger --topic orders/fulfilled
 
 ---
 
-## Retry Processor (Cron)
+## Retry Processor
 
 Failed HoodslyHub syncs are automatically retried via a dedicated endpoint.
 
@@ -331,43 +331,3 @@ shopify webhook trigger --topic orders/fulfilled
 ```bash
 curl http://localhost:3000/api/retry-processor
 ```
-
----
-
-## Building & Deployment
-
-### Build for production
-
-```bash
-npm run build
-```
-
-### Start the production server
-
-```bash
-npm run start
-```
-
-### Deploy app config and extensions to Shopify
-
-```bash
-npm run deploy
-```
-
-### Docker (includes DB setup)
-
-```bash
-# Uses the docker-start script: npm run setup && npm run start
-docker build -t m2s .
-docker run -e DB_URL="mysql://..." -e SHOPIFY_API_KEY="..." m2s
-```
-
-### Hosting options
-
-| Platform | Notes |
-|---|---|
-| [Google Cloud Run](https://shopify.dev/docs/apps/launch/deployment/deploy-to-google-cloud-run) | Most detailed Shopify-specific tutorial |
-| [Fly.io](https://fly.io/docs/js/shopify/) | Quick single-machine deploy via CLI |
-| [Render](https://render.com/docs/deploy-shopify-app) | Docker-based deploy with cron job support |
-
-Set `NODE_ENV=production` in your hosting environment's env vars.
