@@ -2,10 +2,8 @@ import { withRetry } from "./retry.server.js";
 import db from "../db.server.js";
 
 function getEndpoint() {
-  return (
-    process.env.BIRDEYE_ENDPOINT ||
-    `${process.env.SHOPIFY_APP_URL || "http://localhost:3000"}/api/mock/birdeye`
-  );
+  const localBase = `http://localhost:${process.env.PORT || 3000}`;
+  return process.env.BIRDEYE_ENDPOINT || `${localBase}/api/mock/birdeye`;
 }
 
 /**

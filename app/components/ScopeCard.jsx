@@ -88,7 +88,7 @@ export function ScopeCard({
           <s-choice value="all">All Products</s-choice>
           <s-choice value="collections">By Collection</s-choice>
           <s-choice value="tags">By Tag</s-choice>
-          <s-choice value="manual">Manual Selection</s-choice>
+          <s-choice value="manual">Specific Products</s-choice>
         </s-choice-list>
 
         {/* Conditional scope pickers */}

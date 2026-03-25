@@ -1,7 +1,7 @@
 const HUBSPOT_BASE = "https://api.hubapi.com";
 
 async function syncToHubSpotMock(order) {
-  const baseUrl = process.env.SHOPIFY_APP_URL || "http://localhost:3000";
+  const baseUrl = `http://localhost:${process.env.PORT || 3000}`;
   const email = order.email || order.customer?.email || "";
   const payload = {
     contact: {

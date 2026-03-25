@@ -1,10 +1,8 @@
 import prisma from "../db.server.js";
 
 function getEndpoint() {
-  return (
-    process.env.HOODSLYHUB_ENDPOINT ||
-    `${process.env.SHOPIFY_APP_URL || "http://localhost:3000"}/api/mock/hoodslyhub`
-  );
+  const localBase = `http://localhost:${process.env.PORT || 3000}`;
+  return process.env.HOODSLYHUB_ENDPOINT || `${localBase}/api/mock/hoodslyhub`;
 }
 
 /**
