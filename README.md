@@ -27,7 +27,6 @@
 - [Retry Processor (Cron)](#retry-processor-cron)
 - [Testing](#testing)
 - [Building & Deployment](#building--deployment)
-- [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -372,60 +371,3 @@ docker run -e DB_URL="mysql://..." -e SHOPIFY_API_KEY="..." m2s
 | [Render](https://render.com/docs/deploy-shopify-app) | Docker-based deploy with cron job support |
 
 Set `NODE_ENV=production` in your hosting environment's env vars.
-
----
-
-## Troubleshooting
-
-### Database tables don't exist
-
-```
-The table `main.Session` does not exist in the current database.
-```
-
-Run the setup script to apply migrations:
-
-```bash
-npm run setup
-```
-
-### Navigating inside the embedded app breaks the session
-
-Shopify embedded apps run inside an iFrame. To avoid session/navigation issues:
-
-1. Use `Link` from `react-router` — never use raw `<a>` tags for in-app navigation
-2. Use `redirect` from `authenticate.admin`, not from `react-router`
-3. Use `useFetcher` / `useSubmit` from `react-router` for form submissions
-
-### JWT "nbf" claim timestamp check failed
-
-Your machine's clock is out of sync. Enable **"Set time and date automatically"** in your system's Date & Time settings.
-
-### Webhooks failing HMAC validation
-
-Webhooks created manually in the Shopify admin are not signed with your app secret. Only use webhooks declared in `shopify.app.toml`. See: [app-specific webhooks](https://shopify.dev/docs/apps/build/webhooks/subscribe#app-specific-subscriptions).
-
-### Shop-specific webhook subscriptions not updating
-
-If you're registering webhooks in the `afterAuth` hook, switch to declaring them in `shopify.app.toml` — Shopify will sync changes automatically on every `shopify app deploy`. If you must use shop-specific webhooks, uninstall and reinstall the app to force `afterAuth` to run again.
-
-### Prisma engine errors on Windows ARM64
-
-```
-Unable to require query_engine-windows.dll.node
-```
-
-Set this env var to use binary engine mode:
-
-```bash
-PRISMA_CLIENT_ENGINE_TYPE=binary
-```
-
-Rather than cloning this repo, follow the [Quick Start steps](https://github.com/Shopify/shopify-app-template-react-router#quick-start).
-
-Visit the [`shopify.dev` documentation](https://shopify.dev/docs/api/shopify-app-react-router) for more details on the React Router app package.
-
-## Upgrading from Remix
-
-If you have an existing Remix app that you want to upgrade to React Router, please follow the [upgrade guide](https://github.com/Shopify/shopify-app-template-react-router/wiki/Upgrading-from-Remix). Otherwise, please follow the quick start guide below.
-
