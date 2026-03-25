@@ -301,25 +301,7 @@ Add at least two fields to test both input types and price adders:
 | `Engraving Text` | Text | No price adder — free text input |
 | `Font Style` | Dropdown | Add options: `Script (+$5.00)`, `Block (+$3.00)`, `Print (free)` |
 
-For each dropdown option, set the **Price Adder** value (e.g. `5.00` for Script).
-
-#### Step 3 — Save and verify metafield publishing
-
-1. Click **Save**
-2. In the Shopify admin, open one of the products you selected in Step 1
-3. Scroll to **Metafields** → look for `app.configurator_definition`
-4. The value should be a JSON object matching the field schema you defined
-
-> **Tip:** You can also verify via the GraphQL Admin API:
-> ```graphql
-> {
->   product(id: "gid://shopify/Product/YOUR_PRODUCT_ID") {
->     metafield(namespace: "app", key: "configurator_definition") {
->       value
->     }
->   }
-> }
-> ```
+For each dropdown option, set the **Price Adder** value (example. `5.00`)
 
 #### Step 4 — Test the cart transform at checkout
 
