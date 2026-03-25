@@ -26,7 +26,6 @@
 - [Webhooks](#webhooks)
 - [Retry Processor (Cron)](#retry-processor-cron)
 - [Testing](#testing)
-- [Building & Deployment](#building--deployment)
 
 ---
 
@@ -282,6 +281,71 @@ If `CRON_SECRET` is not set, the endpoint is open (acceptable for local dev, not
 
 ## Testing
 
+### Testing the Product Configurator (Manual Product Selection)
+
+This walkthrough creates an Option Set scoped to manually selected products, verifies it publishes to the correct metafields, and confirms the cart transform extension applies the price adder at checkout.
+
+#### Step 1 — Create a new Option Set
+
+1. Navigate to `/app/configurator`
+2. Click **New Option Set**
+3. Fill in the **Name** field, e.g. `Custom Engraving`
+4. Under **Scope**, select **Manual** and use the product picker to choose one or more specific products from your dev store
+
+#### Step 2 — Add fields to the Option Set
+
+Add at least two fields to test both input types and price adders:
+
+| Field label | Type | Options / Notes |
+|---|---|---|
+| `Engraving Text` | Text | No price adder — free text input |
+| `Font Style` | Dropdown | Add options: `Script (+$5.00)`, `Block (+$3.00)`, `Print (free)` |
+
+For each dropdown option, set the **Price Adder** value (e.g. `5.00` for Script).
+
+#### Step 3 — Save and verify metafield publishing
+
+1. Click **Save**
+2. In the Shopify admin, open one of the products you selected in Step 1
+3. Scroll to **Metafields** → look for `app.configurator_definition`
+4. The value should be a JSON object matching the field schema you defined
+
+> **Tip:** You can also verify via the GraphQL Admin API:
+> ```graphql
+> {
+>   product(id: "gid://shopify/Product/YOUR_PRODUCT_ID") {
+>     metafield(namespace: "app", key: "configurator_definition") {
+>       value
+>     }
+>   }
+> }
+> ```
+
+#### Step 4 — Test the cart transform at checkout
+
+1. Open your dev store's storefront and navigate to one of the manually scoped products
+2. Add it to the cart — the storefront theme must pass configurator selections as a cart line attribute (key: `configurator_selections`, value: JSON, e.g. `{"Font Style":"Script"}`)
+3. View the cart — a hidden **Custom Options** line item should appear with the correct price adder (`+$5.00` for Script)
+4. Proceed to checkout to confirm the total reflects the adder
+
+> **Note:** If the hidden line item does not appear, confirm:
+> - The cart line attribute key matches exactly `configurator_selections`
+> - The product has the `app.configurator_definition` metafield published (Step 3)
+> - The cart transform extension is deployed: `shopify app deploy`
+
+#### Step 5 — Edit the Option Set and re-verify
+
+1. Return to `/app/configurator` and open the **Custom Engraving** Option Set
+2. Change the `Script` price adder to `$8.00` and save
+3. Add the product to the cart again and confirm the new adder is applied at checkout
+
+#### Step 6 — Delete the Option Set
+
+1. From `/app/configurator`, click **Delete** on the Option Set
+2. Verify in the Shopify admin that the `app.configurator_definition` metafield has been cleared from the scoped products
+
+---
+
 ### Testing integrations with mock endpoints
 
 All three integrations have local mock endpoints. By default they return a success response and log the payload to the console. No external credentials are needed for local development.
@@ -325,9 +389,3 @@ shopify webhook trigger --topic orders/fulfilled
 1. Navigate to `/app/order-report`
 2. Optionally apply date/tag filters
 3. Click **Export CSV** — a `.csv` file will download directly in the browser
-
-### Running the retry processor manually
-
-```bash
-curl http://localhost:3000/api/retry-processor
-```
