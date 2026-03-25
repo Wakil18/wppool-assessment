@@ -1,0 +1,32 @@
+query CartTransformRunInput {
+  shop {
+    adderVariantId: metafield(namespace: "$app", key: "configurator_adder_variant_id") {
+      value
+    }
+  }
+  cart {
+    lines {
+      id
+      quantity
+      cost {
+        amountPerQuantity {
+          amount
+          currencyCode
+        }
+      }
+      attribute(key: "_configurator_selections") {
+        value
+      }
+      merchandise {
+        ... on ProductVariant {
+          id
+          product {
+            metafield(namespace: "$app", key: "configurator_definition") {
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}

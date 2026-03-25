@@ -1,0 +1,7 @@
+api_version = "2026-04"
+
+[[extensions]]
+name = "Product Configurator"
+handle = "product-configurator"
+uid = "1fbbb741-70c0-e49b-a74b-95a8d868c5a13ce36e7b"
+type = "theme_app_extension"

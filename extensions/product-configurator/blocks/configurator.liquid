@@ -1,0 +1,118 @@
+{% comment %}
+  Product Configurator Block — Phase 3
+  Renders the configurator fields for this product on the storefront.
+
+  Definition resolution priority: manual > tags > collection > all
+  - manual:     product.metafields["$app"].configurator_definition   (set per-product by Manual scope)
+  - tags:       shop.metafields["$app"].configurator_tag_registry    (JSON map { "tag": definition })
+  - collection: collection.metafields["$app"].configurator_definition (first matching collection)
+  - all:        shop.metafields["$app"].configurator_all_definition   (global fallback)
+
+  Cart contract with the Cart Transform Function (Phase 2b):
+  - properties[_configurator_selections] = JSON.stringify({ [fieldId]: selectedValue })
+  - properties[field.label] = selectedValue   ← human-readable, shown in order admin
+{% endcomment %}
+
+<div id="configurator-root">
+  {%- comment -%}
+    Embed all scope data as a JS global for easy browser-console inspection.
+    `| json` is required for json-type metafield .value: Shopify Liquid returns the parsed
+    Hash/Array object, not a raw string. Without `| json` the output is Ruby notation
+    (using => instead of :) which is invalid JSON.
+    `| json` on nil outputs `null`; on a Hash outputs `{...}`; handles </ escaping automatically.
+    Set window.ConfiguratorData.debug = true (or append ?configurator_debug=1 to the URL)
+    to enable verbose console logging in configurator.js.
+  {%- endcomment -%}
+  <script>
+    window.ConfiguratorData = {
+      variantId: {{ product.selected_or_first_available_variant.id }},
+      basePrice: {{ product.selected_or_first_available_variant.price }},
+      currency: {{ cart.currency.iso_code | json }},
+      isGiftCard: {{ product.gift_card | json }},
+      productTags: {{ product.tags | json }},
+      manualDefinition: {{ product.metafields["$app"].configurator_definition.value | json }},
+      tagRegistry: {{ shop.metafields["$app"].configurator_tag_registry.value | json }},
+      allDefinition: {{ shop.metafields["$app"].configurator_all_definition.value | json }},
+      collectionDefinitions: [
+        {% for col in product.collections %}
+          {% unless forloop.first %},{% endunless %}
+          { id: {{ col.id }}, definition: {{ col.metafields["$app"].configurator_definition.value | json }} }
+        {% endfor %}
+      ],
+      debug: false
+    };
+  </script>
+
+  <div id="configurator-fields"></div>
+
+  <div id="configurator-price" style="display:none;">
+    <p class="configurator-price-line">
+      <span class="configurator-price-label">Estimated Total: </span>
+      <strong id="configurator-price-value"></strong>
+    </p>
+  </div>
+
+  <div id="configurator-form">
+    <button type="button" id="configurator-add-btn">Add to cart</button>
+  </div>
+</div>
+
+<style>
+  #configurator-add-btn {
+    display: block;
+    width: 100%;
+    padding: 1.5rem 3rem;
+    background-color: rgb(var(--color-button));
+    color: rgb(var(--color-button-text));
+    border: calc(var(--buttons-border-width) * 1px) solid
+      rgba(var(--color-button-text), var(--buttons-border-opacity));
+    border-radius: calc(var(--buttons-radius) * 1px);
+    font-family: inherit;
+    font-size: 1.5rem;
+    letter-spacing: 0.1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: box-shadow var(--duration-short, 0.1s) ease;
+    position: relative;
+    box-sizing: border-box;
+    text-align: center;
+    min-height: 4.5rem;
+  }
+
+  #configurator-add-btn:hover:not(:disabled) {
+    box-shadow: 0 0 0 calc(var(--buttons-border-width) * 1px + 3px)
+      rgba(var(--color-button-text), 0.5);
+  }
+
+  #configurator-add-btn:disabled {
+    cursor: default;
+  }
+
+  .configurator-spinner {
+    display: inline-block;
+    width: 1.8rem;
+    height: 1.8rem;
+    border: 0.2rem solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: configurator-spin 0.65s linear infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes configurator-spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+
+<script src="{{ 'configurator.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Product Configurator",
+  "target": "body",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": []
+}
+{% endschema %}

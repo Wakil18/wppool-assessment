@@ -1,0 +1,71 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "a65b9850dee51640fbd602b221297b63"
+name = "m2s"
+application_url = "https://mirta-nonpunctuating-magda.ngrok-free.dev"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2026-04"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "orders/create" ]
+  uri = "/webhooks/orders/create"
+
+  [[webhooks.subscriptions]]
+  topics = [ "orders/fulfilled" ]
+  uri = "/webhooks/orders/fulfilled"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_metaobject_definitions,write_metaobjects,write_products,read_orders,write_cart_transforms,read_customers"
+
+[auth]
+redirect_urls = [ "https://mirta-nonpunctuating-magda.ngrok-free.dev/api/auth" ]
+
+[product.metafields.app.configurator_definition]
+type = "json"
+name = "Configurator Definition"
+description = "Product configurator field schema for the M2S configurator engine"
+
+  [product.metafields.app.configurator_definition.access]
+  admin = "merchant_read_write"
+  storefront = "public_read"
+
+[collection.metafields.app.configurator_definition]
+type = "json"
+name = "Configurator Definition"
+description = "Configurator field schema for this collection"
+
+  [collection.metafields.app.configurator_definition.access]
+  admin = "merchant_read_write"
+  storefront = "public_read"
+
+[shop.metafields.app.configurator_all_definition]
+type = "json"
+name = "Configurator — All Products Definition"
+description = "Default configurator definition applied to all products"
+
+  [shop.metafields.app.configurator_all_definition.access]
+  admin = "merchant_read_write"
+  storefront = "public_read"
+
+[shop.metafields.app.configurator_tag_registry]
+type = "json"
+name = "Configurator — Tag Registry"
+description = "Map of product tag to configurator definition"
+
+  [shop.metafields.app.configurator_tag_registry.access]
+  admin = "merchant_read_write"
+  storefront = "public_read"

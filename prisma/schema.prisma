@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+  // url      = "mysql://root:Wak1l_eF0l1_r00t@localhost:3306/m2s?schema=public"
+}
+
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+model OrderSync {
+  id            String    @id @default(cuid())
+  orderId       String
+  shop          String
+  status        String    // pending | synced | failed | permanently_failed
+  retryCount    Int       @default(0)
+  lastAttemptAt DateTime?
+  nextRetryAt   DateTime?
+  payload       String    @db.Text // JSON.stringify of full Shopify order webhook payload
+  errorMessage  String?   @db.Text
+  orderTotal    String
+  customerEmail String
+  isRush        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([orderId, shop])
+}
+
+model OptionSet {
+  id         String   @id @default(cuid())
+  shop       String
+  name       String
+  scopeType  String   // all | collections | tags | manual
+  scopeValue String   @db.Text // JSON array: [] for all, [collectionGid], ["tag1","tag2"], [productGid,...]
+  definition String   @db.Text // JSON: { version: "1", fields: [...] }
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([shop])
+}
+
+model Shop {
+  id                    String    @id @default(cuid())
+  gid                   String    @unique // gid://shopify/Shop/...
+  myshopifyDomain       String    @unique // e.g. my-store.myshopify.com
+  name                  String?
+  email                 String?
+  currency              String?   // shop primary currency code
+  timezone              String?   // IANA timezone e.g. "America/New_York"
+  installationsCount    Int       @default(1)
+  installedAt           DateTime  @default(now())
+  uninstalledAt         DateTime?
+  cartTransformActivated Boolean  @default(false)
+  adderVariantId        String?   // GID of the hidden "Custom Options" variant
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([myshopifyDomain])
+}
+
+model ReviewLog {
+  id           String    @id @default(cuid())
+  shop         String
+  orderId      String
+  email        String
+  firstName    String    @default("")
+  status       String    // sent | failed
+  attempts     Int       @default(1)
+  errorMessage String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([orderId, shop])
+  @@index([shop])
+}
