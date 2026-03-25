@@ -268,8 +268,29 @@ export default function OptionSetEditor() {
 
   return (
     <s-page heading={isNew ? "New Option Set" : `Edit: ${set.name}`}>
+
+      <s-button
+        slot="primary-action"
+        onClick={handleSubmit}
+        {...(isSaving ? { loading: true } : {})}
+      >
+        Save Option Set
+      </s-button>
+
+      {isDirty && (
+        <s-button slot="secondary-actions" variant="secondary" tone="critical" onClick={handleDiscard}>
+          Discard Changes
+        </s-button>
+      )}
+
+      {/* <s-link
+        // slot="breadcrumb-actions"
+        onClick={(e) => { e.preventDefault(); navigate("/app/configurator"); }}
+      >
+        Back
+      </s-link> */}
+
       <s-button slot="secondary-action" variant="secondary" onClick={() => navigate("/app/configurator")}>
-      {/* <s-button slot="secondary-action" variant="secondary" onClick={() => navigate(-1)}> */}
         ← Back
       </s-button>
 
@@ -305,7 +326,7 @@ export default function OptionSetEditor() {
       />
 
       {/* Card 4: JSON Preview */}
-      {fields.length > 0 && (
+      {/* {fields.length > 0 && (
         <s-section heading="Definition Preview (JSON)">
           <s-paragraph>
             This JSON is stored as a product/collection/shop metafield and read
@@ -317,7 +338,7 @@ export default function OptionSetEditor() {
             </pre>
           </s-box>
         </s-section>
-      )}
+      )} */}
 
       {/* Save / Discard buttons at bottom */}
       <s-stack direction="inline" gap="base">
